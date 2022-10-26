@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <string.h>
 #include <unistd.h>
 #include <sys/wait.h>
@@ -71,7 +72,7 @@ char* ss_read_line(void)
                 exit(EXIT_FAILURE);
         }
 
-        while (1) {
+        while (true) {
                 c = getchar();
 
                 if (c == '\n') {
@@ -140,27 +141,33 @@ int ss_run(char **args)
         pid = fork();
         // It's a child
         if (pid == 0) {
+                // trying to execute command
                 if (execvp(args[0], args) == -1)
                         perror("ss");
                 exit(EXIT_FAILURE);
         } else if (pid < 0) {
+                // forking goes wrong
                 perror("ss");
         
         } else {
+                // it's parent
                 do {
                         wpid = waitpid(pid, &status, WUNTRACED);
                 } while (!WIFEXITED(status) && !WIFSIGNALED(status));
         }
-        return 1;
+
+        return wpid;
 }
 
 int ss_exec(char **args)
 {
+        // input is empty
         if (args[0] == NULL)
                 return 1;
 
+        // check, if input from builtins
         for (int i = 0; i < ss_num_builtins(); i++) {
-                if (strcmp(args[0], builtin_str[i]) == 0) {
+                if (!strcmp(args[0], builtin_str[i])) {
                         return (*builtin_func[i])(args);
                 }
         }
