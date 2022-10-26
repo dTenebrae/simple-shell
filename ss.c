@@ -57,7 +57,7 @@ int ss_exit(char **args)
         return 0;
 }
 
-char* ss_readline(void)
+char* ss_read_line(void)
 {
         int bufsize = SS_BUFSIZE;
         int pos     = 0;
@@ -74,8 +74,11 @@ char* ss_readline(void)
         while (1) {
                 c = getchar();
 
-                if (c == EOF || c == '\n') {
+                if (c == '\n') {
                         buffer[pos] = '\0';
+                        return buffer;
+                } else if (c == EOF) {
+                        buffer[pos] = EOF;
                         return buffer;
                 } else {
                         buffer[pos] = c;
@@ -94,7 +97,7 @@ char* ss_readline(void)
         }
 }
 
-char** ss_parseline(char* line)
+char** ss_parse_line(char* line)
 {
         int    bufsize = SS_TOKEN_BUFSIZE;
         int    pos     = 0;
@@ -107,6 +110,10 @@ char** ss_parseline(char* line)
         }
 
         token = strtok(line, SS_TOKEN_DELIM);
+        if (*token == EOF) {
+                tokens[pos] = "exit";
+                return tokens;
+        }
         while (token != NULL) {
                 tokens[pos] = token;
                 pos++;
@@ -171,8 +178,8 @@ void ss_loop(void)
         do {
                 // TODO replace with customizable input char
                 printf("> ");
-                line = ss_readline();
-                parsed = ss_parseline(line);
+                line = ss_read_line();
+                parsed = ss_parse_line(line);
                 status = ss_exec(parsed);
 
                 free(line);
@@ -183,12 +190,8 @@ void ss_loop(void)
 
 int main (int argc, char *argv[])
 {
-        // load config files here
-
         // main shell loop
         ss_loop();
-
-        // shutdown/cleanup routines
 
         return 0;
 }
