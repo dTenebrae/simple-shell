@@ -33,10 +33,10 @@ int ash_num_builtins()
 int ash_cd(char **args)
 {
         if (args[1] == NULL) {
-                fprintf(stderr, "ss: unexpected argument\n");
+                fprintf(stderr, "ash: unexpected argument\n");
         } else {
                 if (chdir(args[1]) != 0)
-                        perror("ss");
+                        perror("ash");
         }
         return 1;
 }
@@ -48,7 +48,7 @@ int ash_pwd(char **args)
         if (getcwd(cwd, sizeof(cwd)) != NULL) {
                 printf("%s\n", cwd);
         } else {
-                perror("ss");
+                perror("ash");
         }
         return 1;
 }
@@ -68,7 +68,7 @@ char* ash_read_line(void)
         char *buffer = malloc(sizeof(char) * bufsize);
 
         if (!buffer) {
-                fprintf(stderr, "ss: memory allocation error\n");
+                fprintf(stderr, "ash: memory allocation error\n");
                 exit(EXIT_FAILURE);
         }
 
@@ -91,7 +91,7 @@ char* ash_read_line(void)
                         bufsize += ASH_BUFSIZE;
                         buffer = realloc(buffer, bufsize);
                         if (!buffer) {
-                                fprintf(stderr, "ss: memory reallocation error\n");
+                                fprintf(stderr, "ash: memory reallocation error\n");
                                 exit(EXIT_FAILURE);
                         }
                 }
@@ -106,7 +106,7 @@ char** ash_parse_line(char* line)
         char  *token;
 
         if (!tokens) {
-                fprintf(stderr, "ss: memory allocation error\n");
+                fprintf(stderr, "ash: memory allocation error\n");
                 exit(EXIT_FAILURE);
         }
 
@@ -123,7 +123,7 @@ char** ash_parse_line(char* line)
                         bufsize += ASH_TOKEN_BUFSIZE;
                         tokens = realloc(tokens, bufsize * sizeof(char*));
                         if (!tokens) {
-                                fprintf(stderr, "ss: memory allocation error\n");
+                                fprintf(stderr, "ash: memory allocation error\n");
                                 exit(EXIT_FAILURE);
                         }
                 }
@@ -143,11 +143,11 @@ int ash_run(char **args)
         if (pid == 0) {
                 // trying to execute command
                 if (execvp(args[0], args) == -1)
-                        perror("ss");
+                        perror("ash");
                 exit(EXIT_FAILURE);
         } else if (pid < 0) {
                 // forking goes wrong
-                perror("ss");
+                perror("ash");
         
         } else {
                 // it's parent
